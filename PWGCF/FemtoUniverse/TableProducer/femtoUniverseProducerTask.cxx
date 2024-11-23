@@ -14,6 +14,7 @@
 /// \author Laura Serksnyte, TU München, laura.serksnyte@tum.de
 /// \author Zuzanna Chochulska, WUT Warsaw & CTU Prague, zchochul@cern.ch
 /// \author Malgorzata Janik, WUT Warsaw, majanik@cern.ch
+/// \author Pritam Chakraborty, WUT Warsaw, pritam.chakraborty@cern.ch
 
 #include <CCDB/BasicCCDBManager.h>
 #include <TDatabasePDG.h> // FIXME
@@ -1444,7 +1445,7 @@ struct femtoUniverseProducerTask {
         std::vector<int> tmpPDGCodes = ConfMCTruthPDGCodes; // necessary due to some features of the Configurable
         for (uint32_t pdg : tmpPDGCodes) {
           if (static_cast<int>(pdg) == static_cast<int>(pdgCode)) {
-            if ((pdgCode == 333)) { // && (recoMcIds && recoMcIds->get().contains(particle.globalIndex()))) { // ATTENTION: all Phi mesons are NOT primary particles
+            if (pdgCode == 333) { // && (recoMcIds && recoMcIds->get().contains(particle.globalIndex()))) { // ATTENTION: all Phi mesons are NOT primary particles
               pass = true;
             } else {
               if (particle.isPhysicalPrimary() || (ConfActivateSecondaries && recoMcIds && recoMcIds->get().contains(particle.globalIndex())))
@@ -1496,11 +1497,11 @@ struct femtoUniverseProducerTask {
     if constexpr (resolveDaughs) {
       childIDs[0] = 0;
       childIDs[1] = 0;
-      for (int i = 0; i < tmpIDtrack.size(); i++) {
+      for (std::size_t i = 0; i < tmpIDtrack.size(); i++) {
         const auto& particle = tracks.iteratorAt(tmpIDtrack[i] - tracks.begin().globalIndex());
         for (int daughIndex = 0, n = std::min(2ul, particle.daughtersIds().size()); daughIndex < n; daughIndex++) {
           // loop to find the corresponding index of the daughters
-          for (int j = 0; j < tmpIDtrack.size(); j++) {
+          for (std::size_t j = 0; j < tmpIDtrack.size(); j++) {
             if (tmpIDtrack[j] == particle.daughtersIds()[daughIndex]) {
               childIDs[daughIndex] = i - j;
               break;
@@ -1786,7 +1787,7 @@ struct femtoUniverseProducerTask {
 
   void processTrackCentRun3Data(aod::FemtoFullCollisionCentRun3 const& col,
                                 aod::BCsWithTimestamps const&,
-                                aod::FemtoFullTracks const& tracks)
+                                soa::Filtered<aod::FemtoFullTracks> const& tracks)
   {
     // get magnetic field for run
     getMagneticFieldTesla(col.bc_as<aod::BCsWithTimestamps>());
